@@ -52,6 +52,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    // Adds the piece to the board it changes the sprite and the tag depending on whos its turn
     public void AddPiece(RowManager row){
 
         if(isPlayerTurn){
@@ -131,6 +132,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    // It chooses the row for the computer to move, it checks if the player or the computer is about to win to make that move.
     void SetComputerTurn(){
 
         //Vertical Checking
@@ -220,7 +222,8 @@ public class GameManager : MonoBehaviour
         }
         return index;
     }
-
+    
+    // Checks all the pieces position with one to check if there is a connection
     void CheckPieces(GameObject piece){
         float pieceDistance = rowOffset * 1.8f;
         float minimumDistance = rowOffset * 0.1f;
