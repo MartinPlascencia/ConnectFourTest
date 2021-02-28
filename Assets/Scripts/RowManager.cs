@@ -7,14 +7,8 @@ public class RowManager : MonoBehaviour
     [Header("Row Stats")]
     public int piecesNumber = 0;
     public Transform startPosition;
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    public GameObject lastPiece;
+    public List<GameObject> piecesList;
+    [System.NonSerialized]
+    public int rowIndex;
 }

@@ -116,7 +116,7 @@ public static class UIAnimation
     public static void FadeInScreen(CanvasGroup screen,float animationTime, float delayTime){
         screen.gameObject.SetActive(true);
         screen.alpha = 0;
-        screen.DOFade(1f,animationTime).SetDelay(delayTime).OnComplete(()=>{
+        screen.DOFade(0.6f,animationTime).SetDelay(delayTime).OnComplete(()=>{
             isAnimating = false;
         });
     }
