@@ -166,27 +166,10 @@ public static class UIAnimation
     public static void SquishObject(Transform transform){
 
         var scaleToUse = transform.localScale;
-        transform.DOScale(new Vector3(scaleToUse.x * 0.65f,scaleToUse.y * 0.65f,scaleToUse.z * 0.65f),0.15f).SetLoops(2,LoopType.Yoyo).OnComplete(()=>{
-            transform.DOScale(new Vector3(scaleToUse.x * 0.8f,scaleToUse.y * 0.8f,scaleToUse.z * 0.8f),0.07f).SetLoops(2,LoopType.Yoyo).OnComplete(()=>{
+        transform.DOScale(new Vector3(scaleToUse.x * 0.65f,scaleToUse.y * 0.65f,scaleToUse.z * 0.65f),0.15f).SetLoops(4,LoopType.Yoyo).OnComplete(()=>{
+            transform.DOScale(new Vector3(scaleToUse.x * 0.8f,scaleToUse.y * 0.8f,scaleToUse.z * 0.8f),0.07f).SetLoops(4,LoopType.Yoyo).OnComplete(()=>{
             });
         });
-    }
-
-    public static void UpDownObject(Transform transform,float distance){
-
-        float yPosition = transform.position.y;
-        transform.DOMoveY(yPosition + distance,0.25f,false).SetLoops(2,LoopType.Yoyo).OnComplete(()=>{
-
-        });
-    }
-
-    public static void ThrowObject(Transform transform, Transform objective,UnityEvent callback){
-
-        
-        transform.DOMove(objective.position,1f,false).OnComplete(()=>{
-            callback.Invoke();
-        });
-        //transform.DOMoveY(objective.position.y + 2,0.5f,false).SetLoops(2,LoopType.Yoyo);
     }
 
     public static void PopImage(Transform transform, float time,float delay){

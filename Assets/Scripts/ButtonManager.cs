@@ -11,6 +11,7 @@ public class ButtonManager : MonoBehaviour, IPointerClickHandler
     //private Button button;
     public bool isPrincipal;
     public bool interactable = true;
+    public bool hasSound = true;
     public enum AnimationType {ScaleDown,Squish,NoAnimation};
     public AnimationType animType;
     public UnityEvent buttonCallback;    
@@ -18,8 +19,8 @@ public class ButtonManager : MonoBehaviour, IPointerClickHandler
     public void OnPointerClick(PointerEventData eventData){
         if(UIAnimation.isAnimating || !interactable)
             return;
-        //SoundManager.instance.Play("click");
-        //Debug.Log(UIAnimation.isAnimating + " " + interactable);
+        if(hasSound)
+            SoundManager.instance.Play("pop");
         UIAnimation.AnimateButton(transform,buttonCallback,GetAnimationID());
     }
 

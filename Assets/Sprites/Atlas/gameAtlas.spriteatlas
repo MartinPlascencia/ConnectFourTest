@@ -34,13 +34,19 @@ SpriteAtlas:
     bindAsDefault: 1
   m_MasterAtlas: {fileID: 0}
   m_PackedSprites:
+  - {fileID: 21300000, guid: 4cd87e0115edcc94fbea0c9630410902, type: 3}
+  - {fileID: 21300000, guid: 56cb0681d7adf68459e48614128f3ae5, type: 3}
   - {fileID: 21300000, guid: ff028415506a68741a79360168d68287, type: 3}
   - {fileID: 21300000, guid: 38dcc2e72fe7cdd4ba1ef9b9d64b366e, type: 3}
+  - {fileID: 21300000, guid: 1842f34e97dc7ab4c92c15dc70f933dc, type: 3}
   - {fileID: 21300000, guid: ab9c500faf0eb9a4e94f916b667c6df0, type: 3}
   - {fileID: 21300000, guid: 8d8ae4bfe15bea54a9c64a91f2922e12, type: 3}
   m_PackedSpriteNamesToIndex:
+  - star
+  - play_button
   - connect_piece
   - restart_button
+  - background
   - Connect4Board
   - connect_piece1
   m_Tag: gameAtlas

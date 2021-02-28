@@ -16,6 +16,7 @@ public class GameManager : MonoBehaviour
     public bool isPlayerTurn = true;
     string lastPieceConnection;
     int playerRowIndex;
+    bool drawGame = false;
 
     [Header("Game Assets")]
     public Transform throwPivot;
@@ -28,16 +29,19 @@ public class GameManager : MonoBehaviour
 
     public Sprite playerPieceTexture;
     public Sprite computerPieceTexture;
+    public GameObject restartButton;
 
     [Header("Game Screens")]
     public Text turnText;
     public Text winScreenText;
     public RectTransform winScreen;
     public CanvasGroup fadeScreen;
+    public CanvasGroup whiteFadeScreen;
 
     void Start(){
-        SetTurn(true);
+        //SoundManager.instance.PlayMusic("puzzle_game_02",0.5f);
         InitializeRows();
+        RestartGame();
     }
 
     void InitializeRows(){
@@ -53,9 +57,14 @@ public class GameManager : MonoBehaviour
         if(isPlayerTurn){
             gameActive = false;
             playerRowIndex = row.rowIndex;
+            SoundManager.instance.Play("dragUnit");
+            restartButton.SetActive(false);
+        }else{
+            SoundManager.instance.Play("switch");
         }
+
         GameObject piece = GetPiece();
-        piece.transform.parent = transform;
+        piece.transform.SetParent(transform);
         piece.transform.position = row.startPosition.position + new Vector3(0,rowOffset * row.piecesList.Count,0);
         piece.transform.SetAsFirstSibling();
         row.piecesList.Add(piece);
@@ -69,15 +78,30 @@ public class GameManager : MonoBehaviour
         usedPieces.Add(piece);
         
         piece.GetComponent<PieceBehaviour>().isChecked = false;
-        piece.transform.DOMoveY(throwPivot.position.y,1f).From().OnComplete(CheckWin);
+        piece.transform.DOMoveY(throwPivot.position.y,0.5f).From().OnComplete(CheckWin).SetEase(Ease.InCubic);
     }
 
     void SetTurn(bool active){
         isPlayerTurn = active;
         if(active){
             turnText.text = "Player's turn";
+            restartButton.SetActive(true);
         }else{
             turnText.text = "Computer's turn";
+        }
+
+        CheckRows();
+    }
+
+    void CheckRows(){
+        bool hasSpace = true;
+        foreach(RowManager row in rowList){
+            hasSpace = row.piecesList.Count < piecesLimit;
+        }
+        if(!hasSpace){
+            gameActive = false;
+            drawGame = true;
+            StartCoroutine(WonGame());
         }
     }
 
@@ -101,17 +125,19 @@ public class GameManager : MonoBehaviour
         if(checkedPiecesList.Count < 4){
             SetTurn(!isPlayerTurn);
             if(!isPlayerTurn)
-                SetComputerTurn();
+                Invoke("SetComputerTurn",0.3f);
             else  
                 gameActive = true;
         }
     }
 
     void SetComputerTurn(){
+
+        //Vertical Checking
         int computerIndex = -1;
         foreach(RowManager row in rowList){
             if(row.piecesList.Count < piecesLimit && row.piecesList.Count >= 3){
-                string[] tags = {"PlayerPiece","ComputerPiece"};
+                string[] tags = {"ComputerPiece","PlayerPiece"};
                 foreach(string tag in tags){
                     int numberSamePieces = 0;
                     for(int i = row.piecesList.Count - 1; i > row.piecesList.Count - 4;i--){
@@ -125,6 +151,30 @@ public class GameManager : MonoBehaviour
             }
         }
 
+        //Horizontal Checking
+        if(computerIndex == -1){
+            for(int i = 0; i < rowList.Count; i++){
+                for(int index = 0; index < 5;index++){
+                    string[] tags = {"ComputerPiece","PlayerPiece"};
+                    foreach(string tag in tags){
+                        bool hasPiece = true;
+                        for(var u = 0; u <3;u++){
+                            if(hasPiece)
+                                hasPiece = CheckPieceTag(rowList[index + u].piecesList,i,tag);
+                        }
+                        if(hasPiece){
+                            if(index < 4 && rowList[index + 3].piecesList.Count == i){
+                                computerIndex = index + 3;
+                            }else if(index > 0 && rowList[index - 1].piecesList.Count == i){
+                                computerIndex = index - 1;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        //Random Picking if the player is not going to win
         if(computerIndex == -1){
             computerIndex = playerRowIndex + 1;
             if(UnityEngine.Random.Range(0,10) > 5)
@@ -134,8 +184,41 @@ public class GameManager : MonoBehaviour
             if(computerIndex > rowList.Count - 1)
                 computerIndex = rowList.Count - 1;
         }
+        if(rowList[computerIndex].piecesList.Count == piecesLimit){
+            if(CheckPlayerAround())
+                AddPiece(rowList[GetAvailableRowIndex()]);
+            else
+                SetComputerTurn();
+        }else{
+            AddPiece(rowList[computerIndex]);
+        }
+    }
 
-        AddPiece(rowList[computerIndex]);
+    bool CheckPieceTag(List<GameObject> piece, int index, string tag){
+        return piece.Count > index && piece[index].tag == tag;
+    }
+
+    bool CheckRowFull(int index){
+        return rowList[index].piecesList.Count == piecesLimit;
+    }
+
+    bool CheckPlayerAround(){
+        if(playerRowIndex == 0){
+            return CheckRowFull(1);
+        }else if(playerRowIndex == piecesLimit){
+            return CheckRowFull(piecesLimit-1);
+        }else{
+            return CheckRowFull(playerRowIndex - 1) && CheckRowFull(playerRowIndex) && CheckRowFull(playerRowIndex+1);
+        }
+    }
+
+    int GetAvailableRowIndex(){
+        int index = 0;
+        foreach(RowManager row in rowList){
+            if(row.piecesList.Count < piecesLimit && index == 0)
+                index = row.rowIndex;
+        }
+        return index;
     }
 
     void CheckPieces(GameObject piece){
@@ -180,12 +263,23 @@ public class GameManager : MonoBehaviour
             UIAnimation.SquishObject(piece.transform);
         }
 
-        yield return new WaitForSeconds(1);
-        if(isPlayerTurn){
-            winScreenText.text = "Player Wins";
+        restartButton.SetActive(false);
+        if(drawGame){
+            winScreenText.text = "draw";
+            SoundManager.instance.Play("level_failed");
         }else{
-            winScreenText.text = "Computer Wins";
+            if(isPlayerTurn){
+                winScreenText.text = "Player Wins";
+                SoundManager.instance.Play("winGame");
+            }else{
+                winScreenText.text = "Computer Wins";
+                SoundManager.instance.Play("level_failed");
+            }
         }
+        
+
+        yield return new WaitForSeconds(1);
+        
         UIAnimation.ShowVertical(winScreen);
         UIAnimation.FadeInScreen(fadeScreen,0.5f);
         //RestartGame();
@@ -194,10 +288,11 @@ public class GameManager : MonoBehaviour
     public void HideAndRestart(){
         UIAnimation.HideVertical(winScreen);
         UIAnimation.FadeOutScreen(fadeScreen,0.5f);
-        RestartGame();
+        Invoke("RestartGame",1f);
     }
 
     public void RestartGame(){
+        drawGame = false;
         foreach(RowManager row in rowList){
             row.piecesList = new List<GameObject>();
         }
@@ -208,6 +303,11 @@ public class GameManager : MonoBehaviour
         }
         gameActive = true;
         SetTurn(true);
+        SoundManager.instance.Play("winGame");
+
+        whiteFadeScreen.alpha = 1;
+        whiteFadeScreen.gameObject.SetActive(true);
+        UIAnimation.FadeOutScreen(whiteFadeScreen,0.5f);
     }
 
     void SetPiece(GameObject piece,bool active){
