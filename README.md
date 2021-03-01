@@ -1,5 +1,7 @@
 # ConnectFourTest
 This is a test project based on the popular game Connect4. It follows the same rules and you compete against a CPU.
+You can test the game here:
+http://martinplascencia.com/test/connect_four_site/
 ## Content
 It has a Title Screen, some classes for sounds, custom functionality for buttons and a external plugin for tweens. 
 Almost all the functionality of the game is on the class 'GameManager.cs', it basically checks the position of all the pieces placed on the board
