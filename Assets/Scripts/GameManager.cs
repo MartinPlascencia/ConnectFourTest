@@ -24,6 +24,7 @@ public class GameManager : MonoBehaviour
     public List<RowManager> rowList;
     public List<GameObject> piecesList;
     public List<GameObject> usedPieces;
+    public Image board;
 
     List<GameObject> checkedPiecesList;
 
@@ -42,6 +43,8 @@ public class GameManager : MonoBehaviour
         //SoundManager.instance.PlayMusic("puzzle_game_02",0.5f);
         InitializeRows();
         RestartGame();
+        float frameSize = (1 / (float)piecesLimit);
+        rowOffset = board.sprite.rect.height * frameSize * transform.localScale.y;
     }
 
     void InitializeRows(){
@@ -67,6 +70,7 @@ public class GameManager : MonoBehaviour
         GameObject piece = GetPiece();
         piece.transform.SetParent(transform);
         piece.transform.position = row.startPosition.position + new Vector3(0,rowOffset * row.piecesList.Count,0);
+        piece.transform.localScale = new Vector3(1,1,1);
         piece.transform.SetAsFirstSibling();
         row.piecesList.Add(piece);
         if(isPlayerTurn){

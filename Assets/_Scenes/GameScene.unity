@@ -799,6 +799,7 @@ MonoBehaviour:
   - {fileID: 1158338867}
   piecesList: []
   usedPieces: []
+  board: {fileID: 1723574292}
   playerPieceTexture: {fileID: 21300000, guid: ff028415506a68741a79360168d68287, type: 3}
   computerPieceTexture: {fileID: 21300000, guid: 8d8ae4bfe15bea54a9c64a91f2922e12,
     type: 3}
